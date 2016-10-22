@@ -65,9 +65,11 @@ describe('application logic', () => {
       expect(nextState.get('winner')).equals(expectedFields.get('winner'));
       expect(nextState.get('turn')).equals(expectedFields.get('turn'));
 
-      let expectedFieldsItr = expectedFields.entries();
-      for(let i = expectedFieldsItr.next(); !i.done; i = expectedFieldsItr.next()){
-        expect(nextState.get(i.value[0])).equals(i.value[1]);
+      for(const laneKeyValue of expectedFields.get('lanes').entries()){
+        const lane = laneKeyValue[1];
+        expect(lane.get('winner')).to.be.null;
+        expect(lane.get('p1').equals(List()));
+        expect(lane.get('p2').equals(List()));
       }
     });
 
