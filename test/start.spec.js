@@ -1,4 +1,4 @@
-import {Map, List, fromJS} from 'immutable';
+import {Map, List} from 'immutable';
 import {expect} from 'chai';
 
 import {start} from '../src/core';

@@ -1,7 +1,7 @@
 import {Map, List, fromJS} from 'immutable';
 import {shuffle} from 'lodash/collection';
 
-const EMPTY_LANE =  {
+export const EMPTY_LANE =  {
   winner: null,
   p1:[],
   p2:[]
@@ -31,4 +31,15 @@ export function start() {
     deck: deck.skip(14),
     lanes: fromJS(Array(9).fill(EMPTY_LANE))
   });
+}
+
+//type = PLAY
+export function play(state, action) {
+  //not yet implemented
+  return state
+    .set('turn', switchTurn(state.get('turn')));
+}
+
+function switchTurn(turn){
+  return (turn === 'p1') ? 'p2' : 'p1';
 }
