@@ -1,4 +1,4 @@
-import {Map, List, fromJS} from 'immutable';
+import {Map, is, fromJS} from 'immutable';
 import {shuffle} from 'lodash/collection';
 
 export const EMPTY_LANE =  {
@@ -35,9 +35,13 @@ export function start() {
 
 //type = PLAY
 export function play(state, action) {
-  //not yet implemented
+  let player = state.get('turn');
+  let playedCard = fromJS(action.card);
+
   return state
-    .set('turn', switchTurn(state.get('turn')));
+    .set('turn', switchTurn(player))
+    .set(player, state.get(player).filterNot(card => is(card, playedCard)))
+    .updateIn(['lanes', action.lane, player], lane => lane.push(fromJS(action.card)));
 }
 
 function switchTurn(turn){

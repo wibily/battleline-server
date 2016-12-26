@@ -4,8 +4,8 @@ import {expect} from 'chai';
 
 import {play, EMPTY_LANE} from '../src/core';
 
-describe('move logic', () => {
-  it('should allow players to play a card', ()=> {
+describe('play logic', () => {
+  it('should allow players to play a card from their hand into their lane', ()=> {
     let startState = Map({
       winner: null,
       turn: 'p1',
@@ -23,7 +23,7 @@ describe('move logic', () => {
 
 
     expect(nextState.get('turn')).equals('p2');
-    expect(nextState.get('p1')).equals([]);
+    expect(nextState.get('p1')).equals(fromJS([]));
     expect(nextState.get('lanes').equals(
       fromJS([
         {
