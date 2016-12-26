@@ -5,6 +5,7 @@ import {expect} from 'chai';
 import {play, EMPTY_LANE} from '../src/core';
 
 describe('play logic', () => {
+
   it('should allow players to play a card from their hand into their lane', ()=> {
     let startState = Map({
       winner: null,
@@ -33,4 +34,24 @@ describe('play logic', () => {
         }, ...Array(8).fill(EMPTY_LANE)]
     )));
   });
+
+  it('should not allow players to play cards they do not have in their hand', () =>{
+    let startState = Map({
+      winner: null,
+      turn: 'p1',
+      p1: fromJS([[1, 1]]),
+      p2: List(),
+      deck: List(),
+      lanes: fromJS(Array(9).fill(EMPTY_LANE))
+    });
+
+    let nextState = play(startState, {
+      type: 'PLAY',
+      card: [10, 3],
+      lane: 0
+    });
+
+    expect(nextState).equal(startState);
+  });
+
 });

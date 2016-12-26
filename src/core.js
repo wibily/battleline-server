@@ -1,19 +1,19 @@
 import {Map, is, fromJS} from 'immutable';
 import {shuffle} from 'lodash/collection';
 
-export const EMPTY_LANE =  {
+export const EMPTY_LANE = {
   winner: null,
-  p1:[],
-  p2:[]
+  p1: [],
+  p2: []
 };
 
 const NUM_SUITES = 6;
 const NUM_TROOP_VALUES = 10;
 
-function shuffleDeck(){
+function shuffleDeck() {
   let deck = [];
-  for(let suite = 1; suite <= NUM_SUITES; suite++){
-    for(let troop = 1; troop <= NUM_TROOP_VALUES; troop++){
+  for (let suite = 1; suite <= NUM_SUITES; suite++) {
+    for (let troop = 1; troop <= NUM_TROOP_VALUES; troop++) {
       deck.push([troop, suite]);
     }
   }
@@ -26,17 +26,30 @@ export function start() {
   return Map({
     winner: null,
     turn: 'p1',
-    p1: deck.slice(0,7),
-    p2: deck.slice(7,14),
+    p1: deck.slice(0, 7),
+    p2: deck.slice(7, 14),
     deck: deck.skip(14),
     lanes: fromJS(Array(9).fill(EMPTY_LANE))
   });
 }
 
-//type = PLAY
+function isCardInHand(state, playedCard) {
+  let player = state.get('turn');
+  return state.get(player).find(cardInHand => is(cardInHand, playedCard));
+}
+
+function isValidPlay(state, playedCard) {
+  return isCardInHand(state, playedCard);
+
+}
+
 export function play(state, action) {
   let player = state.get('turn');
   let playedCard = fromJS(action.card);
+
+  if (!isValidPlay(state, playedCard)) {
+    return state;
+  }
 
   return state
     .set('turn', switchTurn(player))
@@ -44,6 +57,6 @@ export function play(state, action) {
     .updateIn(['lanes', action.lane, player], lane => lane.push(fromJS(action.card)));
 }
 
-function switchTurn(turn){
+function switchTurn(turn) {
   return (turn === 'p1') ? 'p2' : 'p1';
 }
