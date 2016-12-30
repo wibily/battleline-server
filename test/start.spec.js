@@ -1,4 +1,4 @@
-import {Map, List, fromJS} from 'immutable';
+import {Map, List} from 'immutable';
 import {expect} from 'chai';
 
 import {start} from '../src/core';
@@ -11,6 +11,7 @@ describe('application logic', () => {
       const nextState = start();
 
       const expectedFields = Map({
+        error: null,
         winner: null,
         turn: 'p1',
         lanes: List.of(
@@ -62,14 +63,8 @@ describe('application logic', () => {
         )
       });
 
-      expect(nextState.get('winner')).equals(expectedFields.get('winner'));
-      expect(nextState.get('turn')).equals(expectedFields.get('turn'));
-
-      for(const laneKeyValue of expectedFields.get('lanes').entries()){
-        const lane = laneKeyValue[1];
-        expect(lane.get('winner')).to.be.null;
-        expect(lane.get('p1').equals(List()));
-        expect(lane.get('p2').equals(List()));
+      for(let key of expectedFields.keys()){
+        expect(nextState.get(key)).equals(expectedFields.get(key));
       }
     });
 
