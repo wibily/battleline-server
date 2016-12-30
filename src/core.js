@@ -75,13 +75,16 @@ export function play(state, action) {
   let playedCard = fromJS(action.card);
 
   let errors = getErrors(state, action);
+
   if(errors){
     return state.set('error', errors);
   }
 
   return state
+    .set('error', null)
     .set('turn', switchTurn(player))
-    .set(player, state.get(player).filterNot(card => is(card, playedCard)))
+    .set(player, state.get(player).filterNot(card => is(card, playedCard)).push(state.get('deck').first()))
+    .set('deck', state.get('deck').shift())
     .updateIn(['lanes', action.lane, player], lane => lane.push(fromJS(action.card)));
 }
 
