@@ -20,3 +20,9 @@ let playACTION = {
   card: [1,1],
   lane: 0
 };
+
+let lane =  {
+  winner: null,
+  p1: [[1,4], [2,2], [3,3]],
+  p2: [[]]
+}

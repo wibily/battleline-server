@@ -52,8 +52,15 @@ function isLaneFull(state, action){
   return state.getIn(['lanes', action.lane, player]).size >= 3;
 }
 
+function isGameOver(state) {
+  return !!state.get('winner');
+}
 
 function getErrors(state, action) {
+
+  if(isGameOver(state)){
+    return ERRORS.play.gameIsAlreadyOver;
+  }
 
   if (!isCardInHand(state, action)){
     return ERRORS.play.cardNotInHand;
@@ -68,6 +75,10 @@ function getErrors(state, action) {
   }
 
   return null;
+}
+
+function switchTurn(turn) {
+  return (turn === 'p1') ? 'p2' : 'p1';
 }
 
 export function play(state, action) {
@@ -86,9 +97,4 @@ export function play(state, action) {
     .set(player, state.get(player).filterNot(card => is(card, playedCard)).push(state.get('deck').first()))
     .set('deck', state.get('deck').shift())
     .updateIn(['lanes', action.lane, player], lane => lane.push(fromJS(action.card)));
-}
-
-
-function switchTurn(turn) {
-  return (turn === 'p1') ? 'p2' : 'p1';
 }
