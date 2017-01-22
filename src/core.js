@@ -81,6 +81,69 @@ function switchTurn(turn) {
   return (turn === 'p1') ? 'p2' : 'p1';
 }
 
+function baseScore(lane){
+  return lane.reduce((sum, card) => {
+    return sum + card.first();
+  }, 0);
+}
+
+function isSkirmish(lane){
+  let sortedScores = (lane.map((card) => {
+    return card.first();
+  })).sort();
+
+  return sortedScores.get(1) === sortedScores.first() + 1 && sortedScores.get(2) === sortedScores.first() + 2;
+}
+
+function isBattalion(line){
+  let suite = line.first().get(1);
+  return line.getIn([1,1]) === suite && line.getIn([2,1]) === suite;
+}
+
+function isPhalanx(line){
+  let troopNumber = line.first().get(0);
+  return line.getIn([1,0]) === troopNumber && line.getIn([2,0]) === troopNumber;
+}
+
+function scoreLine(line){
+  const SKIRMISH_BONUS = 30;
+  const BATTALION_BONUS = 2 * SKIRMISH_BONUS;
+  const PHALANX_BONUS = 3 * SKIRMISH_BONUS;
+
+  let score = baseScore(line);
+
+  if(isPhalanx(line)) {
+    score += PHALANX_BONUS;
+  } else if(isBattalion(line)) {
+    score += BATTALION_BONUS;
+  } else if(isSkirmish(line)){
+    score += SKIRMISH_BONUS;
+  }
+
+  return score;
+}
+
+function updateWinners(lanes){
+  return lanes.map((lane) => {
+    if(lane.winner){
+      return lane;
+    }
+
+    if(lane.get('p1').size === 3 && lane.get('p2').size  === 3){
+      let p1Score = scoreLine(lane.get('p1'));
+      let p2Score = scoreLine(lane.get('p2'));
+
+      if(p1Score > p2Score){
+        return lane.set('winner', 'p1');
+      } else{
+        return lane.set('winner', 'p2');
+      }
+    }
+
+    return lane;
+  });
+}
+
 export function play(state, action) {
   let player = state.get('turn');
   let playedCard = fromJS(action.card);
@@ -96,5 +159,6 @@ export function play(state, action) {
     .set('turn', switchTurn(player))
     .set(player, state.get(player).filterNot(card => is(card, playedCard)).push(state.get('deck').first()))
     .set('deck', state.get('deck').shift())
-    .updateIn(['lanes', action.lane, player], lane => lane.push(fromJS(action.card)));
+    .updateIn(['lanes', action.lane, player], lane => lane.push(fromJS(action.card)))
+    .update('lanes', lanes => updateWinners(lanes));
 }

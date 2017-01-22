@@ -70,5 +70,122 @@ describe('win detection logic', () => {
 
   });
 
+  it('should allow players to win a lane by skirmish line over host', ()=> {
+    let startState = Map({
+      error: null,
+      winner: null,
+      turn: 'p1',
+      p1: fromJS([[3, 2]]),
+      p2: fromJS([[1, 1]]),
+      deck: fromJS([[2,1], [5,6]]),
+      lanes: fromJS([{
+        winner: null,
+        p1: [[1,4], [2,2]],
+        p2: [[10,5], [8,6], [6,2]]
+      }, ...new Array(8).fill(EMPTY_LANE)])
+    });
+
+    let nextState = play(startState, {
+      type: 'PLAY',
+      card: [3, 2],
+      lane: 0
+    });
+
+    let expectedState = Map({
+      error: null,
+      winner: null,
+      turn: 'p2',
+      p1: fromJS([[2,1]]),
+      p2: fromJS([[1, 1]]),
+      deck: fromJS([[5,6]]),
+      lanes: fromJS([{
+        winner: 'p1',
+        p1: [[1,4], [2,2], [3,2]],
+        p2: [[10,5], [8,6], [6,2]]
+      }, ...new Array(8).fill(EMPTY_LANE)])
+    });
+
+    expect(nextState).equal(expectedState);
+
+  });
+
+  it('should allow players to win a lane by battalion order over a skirmish line', ()=> {
+    let startState = Map({
+      error: null,
+      winner: null,
+      turn: 'p2',
+      p1: fromJS([[3, 2]]),
+      p2: fromJS([[4, 1]]),
+      deck: fromJS([[5,6]]),
+      lanes: fromJS([{
+        winner: null,
+        p1: [[3,3], [4,4], [5,5]],
+        p2: [[1,1], [3,1]]
+      }, ...new Array(8).fill(EMPTY_LANE)])
+    });
+
+    let nextState = play(startState, {
+      type: 'PLAY',
+      card: [4, 1],
+      lane: 0
+    });
+
+    let expectedState = Map({
+      error: null,
+      winner: null,
+      turn: 'p1',
+      p1: fromJS([[3, 2]]),
+      p2: fromJS([[5, 6]]),
+      deck: fromJS([]),
+      lanes: fromJS([{
+        winner: 'p2',
+        p1: [[3,3], [4,4], [5,5]],
+        p2: [[1,1], [3,1], [4,1]]
+      }, ...new Array(8).fill(EMPTY_LANE)])
+    });
+
+    expect(nextState).equal(expectedState);
+
+  });
+
+  it('should allow players to win a lane by phalanx over a battalion order', ()=> {
+    let startState = Map({
+      error: null,
+      winner: null,
+      turn: 'p1',
+      p1: fromJS([[1, 1]]),
+      p2: fromJS([[4, 1]]),
+      deck: fromJS([[5,6]]),
+      lanes: fromJS([{
+        winner: null,
+        p1: [[1,3], [1,4]],
+        p2: [[10,6], [9,6], [7,6]]
+      }, ...new Array(8).fill(EMPTY_LANE)])
+    });
+
+    let nextState = play(startState, {
+      type: 'PLAY',
+      card: [1, 1],
+      lane: 0
+    });
+
+    let expectedState = Map({
+      error: null,
+      winner: null,
+      turn: 'p2',
+      p1: fromJS([[5, 6]]),
+      p2: fromJS([[4, 1]]),
+      deck: fromJS([]),
+      lanes: fromJS([{
+        winner: 'p1',
+        p1: [[1,3], [1,4], [1,1]],
+        p2: [[10,6], [9,6], [7,6]]
+      }, ...new Array(8).fill(EMPTY_LANE)])
+    });
+
+    expect(nextState).equal(expectedState);
+
+  });
+
 
 });
