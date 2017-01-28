@@ -105,21 +105,27 @@ function isPhalanx(line){
   return line.getIn([1,0]) === troopNumber && line.getIn([2,0]) === troopNumber;
 }
 
+function isWedge(line){
+  return isSkirmish(line) && isBattalion(line);
+}
+
 function scoreLine(line){
   const SKIRMISH_BONUS = 30;
   const BATTALION_BONUS = 2 * SKIRMISH_BONUS;
   const PHALANX_BONUS = 3 * SKIRMISH_BONUS;
+  const WEDGE_BONUS = 4 * SKIRMISH_BONUS;
 
   let score = baseScore(line);
 
-  if(isPhalanx(line)) {
+  if(isWedge(line)) {
+    score += WEDGE_BONUS;
+  } else if(isPhalanx(line)) {
     score += PHALANX_BONUS;
   } else if(isBattalion(line)) {
     score += BATTALION_BONUS;
   } else if(isSkirmish(line)){
     score += SKIRMISH_BONUS;
   }
-
   return score;
 }
 

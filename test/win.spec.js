@@ -187,5 +187,44 @@ describe('win detection logic', () => {
 
   });
 
+  it('should allow players to win a lane by wedge over phalanx', ()=> {
+    let startState = Map({
+      error: null,
+      winner: null,
+      turn: 'p2',
+      p1: fromJS([[4, 1]]),
+      p2: fromJS([[1, 1]]),
+      deck: fromJS([[5,6]]),
+      lanes: fromJS([{
+        winner: null,
+        p1: [[10,5], [10,6], [10,4]],
+        p2: [[2,1], [3,1]]
+      }, ...new Array(8).fill(EMPTY_LANE)])
+    });
+
+    let nextState = play(startState, {
+      type: 'PLAY',
+      card: [1, 1],
+      lane: 0
+    });
+
+    let expectedState = Map({
+      error: null,
+      winner: null,
+      turn: 'p1',
+      p1: fromJS([[4, 1]]),
+      p2: fromJS([[5, 6]]),
+      deck: fromJS([]),
+      lanes: fromJS([{
+        winner: 'p2',
+        p1: [[10,5], [10,6], [10,4]],
+        p2: [[2,1], [3,1], [1,1]]
+      }, ...new Array(8).fill(EMPTY_LANE)])
+    });
+
+    expect(nextState).equal(expectedState);
+
+  });
+
 
 });
