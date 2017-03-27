@@ -46,7 +46,7 @@ function isLaneWon(state, action) {
   return state.getIn(['lanes', action.lane, 'winner']);
 }
 
-function isLaneFull(state, action){
+function isLaneFull(state, action) {
   let player = state.get('turn');
 
   return state.getIn(['lanes', action.lane, player]).size >= 3;
@@ -58,19 +58,19 @@ function isGameOver(state) {
 
 function getErrors(state, action) {
 
-  if(isGameOver(state)){
+  if (isGameOver(state)) {
     return ERRORS.play.gameIsAlreadyOver;
   }
 
-  if (!isCardInHand(state, action)){
+  if (!isCardInHand(state, action)) {
     return ERRORS.play.cardNotInHand;
   }
 
-  if(isLaneWon(state, action)){
+  if (isLaneWon(state, action)) {
     return ERRORS.play.laneIsAlreadyWon;
   }
 
-  if(isLaneFull(state, action)){
+  if (isLaneFull(state, action)) {
     return ERRORS.play.laneIsAlreadyFull;
   }
 
@@ -81,13 +81,13 @@ function switchTurn(turn) {
   return (turn === 'p1') ? 'p2' : 'p1';
 }
 
-function baseScore(lane){
+function baseScore(lane) {
   return lane.reduce((sum, card) => {
     return sum + card.first();
   }, 0);
 }
 
-function isSkirmish(lane){
+function isSkirmish(lane) {
   let sortedScores = (lane.map((card) => {
     return card.first();
   })).sort();
@@ -95,21 +95,21 @@ function isSkirmish(lane){
   return sortedScores.get(1) === sortedScores.first() + 1 && sortedScores.get(2) === sortedScores.first() + 2;
 }
 
-function isBattalion(line){
+function isBattalion(line) {
   let suite = line.first().get(1);
-  return line.getIn([1,1]) === suite && line.getIn([2,1]) === suite;
+  return line.getIn([1, 1]) === suite && line.getIn([2, 1]) === suite;
 }
 
-function isPhalanx(line){
+function isPhalanx(line) {
   let troopNumber = line.first().get(0);
-  return line.getIn([1,0]) === troopNumber && line.getIn([2,0]) === troopNumber;
+  return line.getIn([1, 0]) === troopNumber && line.getIn([2, 0]) === troopNumber;
 }
 
-function isWedge(line){
+function isWedge(line) {
   return isSkirmish(line) && isBattalion(line);
 }
 
-function scoreLine(line){
+function scoreLine(line) {
   const SKIRMISH_BONUS = 30;
   const BATTALION_BONUS = 2 * SKIRMISH_BONUS;
   const PHALANX_BONUS = 3 * SKIRMISH_BONUS;
@@ -117,33 +117,40 @@ function scoreLine(line){
 
   let score = baseScore(line);
 
-  if(isWedge(line)) {
+  if (isWedge(line)) {
     score += WEDGE_BONUS;
-  } else if(isPhalanx(line)) {
+  } else if (isPhalanx(line)) {
     score += PHALANX_BONUS;
-  } else if(isBattalion(line)) {
+  } else if (isBattalion(line)) {
     score += BATTALION_BONUS;
-  } else if(isSkirmish(line)){
+  } else if (isSkirmish(line)) {
     score += SKIRMISH_BONUS;
   }
   return score;
 }
 
-function updateWinners(lanes){
+function scoreCompleteLane(lane) {
+  let p1Score = scoreLine(lane.get('p1'));
+  let p2Score = scoreLine(lane.get('p2'));
+
+  if (p1Score > p2Score) {
+    return lane.set('winner', 'p1');
+  } else {
+    return lane.set('winner', 'p2');
+  }
+}
+
+function updateWinners(lanes) {
   return lanes.map((lane) => {
-    if(lane.winner){
+    if (lane.winner) {
       return lane;
     }
 
-    if(lane.get('p1').size === 3 && lane.get('p2').size  === 3){
-      let p1Score = scoreLine(lane.get('p1'));
-      let p2Score = scoreLine(lane.get('p2'));
+    const p1LaneSize = lane.get('p1').size;
+    const p2LaneSize = lane.get('p2').size;
 
-      if(p1Score > p2Score){
-        return lane.set('winner', 'p1');
-      } else{
-        return lane.set('winner', 'p2');
-      }
+    if (p1LaneSize === 3 && p2LaneSize === 3) {
+      return scoreCompleteLane(lane);
     }
 
     return lane;
@@ -156,7 +163,7 @@ export function play(state, action) {
 
   let errors = getErrors(state, action);
 
-  if(errors){
+  if (errors) {
     return state.set('error', errors);
   }
 

@@ -5,7 +5,7 @@ import {start} from '../src/core';
 
 describe('application logic', () => {
 
-  describe('start', ()=> {
+  describe('start', () => {
 
     it('should return expected non random fields', () => {
       const nextState = start();
@@ -63,7 +63,7 @@ describe('application logic', () => {
         )
       });
 
-      for(let key of expectedFields.keys()){
+      for (let key of expectedFields.keys()) {
         expect(nextState.get(key)).equals(expectedFields.get(key));
       }
     });
