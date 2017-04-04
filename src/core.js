@@ -129,18 +129,17 @@ function scoreLine(line) {
   return score;
 }
 
-function scoreCompleteLane(lane) {
-  let p1Score = scoreLine(lane.get('p1'));
-  let p2Score = scoreLine(lane.get('p2'));
-
+function getCompletedLaneWinner(p1Score, p2Score, lastPlayed) {
   if (p1Score > p2Score) {
-    return lane.set('winner', 'p1');
+    return 'p1';
+  } else if (p1Score < p2Score) {
+    return 'p2'
   } else {
-    return lane.set('winner', 'p2');
+    return switchTurn(lastPlayed);
   }
 }
 
-function updateWinners(lanes) {
+function updateWinners(lanes, lastPlayed) {
   return lanes.map((lane) => {
     if (lane.winner) {
       return lane;
@@ -149,8 +148,13 @@ function updateWinners(lanes) {
     const p1LaneSize = lane.get('p1').size;
     const p2LaneSize = lane.get('p2').size;
 
-    if (p1LaneSize === 3 && p2LaneSize === 3) {
-      return scoreCompleteLane(lane);
+    if (p1LaneSize === 3 || p2LaneSize === 3) {
+      let p1Score = scoreLine(lane.get('p1'));
+      let p2Score = scoreLine(lane.get('p2'));
+
+      if (p1LaneSize === 3 && p2LaneSize === 3) {
+        return lane.set('winner', getCompletedLaneWinner(p1Score, p2Score, lastPlayed));
+      }
     }
 
     return lane;
@@ -173,5 +177,5 @@ export function play(state, action) {
     .set(player, state.get(player).filterNot(card => is(card, playedCard)).push(state.get('deck').first()))
     .set('deck', state.get('deck').shift())
     .updateIn(['lanes', action.lane, player], lane => lane.push(fromJS(action.card)))
-    .update('lanes', lanes => updateWinners(lanes));
+    .update('lanes', lanes => updateWinners(lanes, player));
 }

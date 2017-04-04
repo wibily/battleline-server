@@ -225,6 +225,44 @@ describe('win detection logic', () => {
     expect(nextState).equal(expectedState);
   });
 
+  it('should award flag to player that did not play last if score is tied', () => {
+    let startState = Map({
+      error: null,
+      winner: null,
+      turn: 'p1',
+      p1: fromJS([[1, 1]]),
+      p2: fromJS([[]]),
+      deck: fromJS([[5, 6]]),
+      lanes: fromJS([{
+        winner: null,
+        p1: [[1, 2], [1, 3]],
+        p2: [[1, 4], [1, 5], [1, 6]]
+      }, ...new Array(8).fill(EMPTY_LANE)])
+    });
+
+    let nextState = play(startState, {
+      type: 'PLAY',
+      card: [1, 1],
+      lane: 0
+    });
+
+    let expectedState = Map({
+      error: null,
+      winner: null,
+      turn: 'p2',
+      p1: fromJS([[5, 6]]),
+      p2: fromJS([[]]),
+      deck: fromJS([]),
+      lanes: fromJS([{
+        winner: 'p2',
+        p1: [[1, 2], [1, 3], [1, 1]],
+        p2: [[1, 4], [1, 5], [1, 6]]
+      }, ...new Array(8).fill(EMPTY_LANE)])
+    });
+
+    expect(nextState).equal(expectedState);
+  });
+
   it('should deduce a win by wedge', () => {
     let startState = Map({
       error: null,

@@ -14,6 +14,7 @@ let mockState = {
 };
 
 //card: [number, suite], suites start from 1
+// 6 suites
 //noinspection JSUnusedGlobalSymbols
 let playACTION = {
   type: 'PLAY',
