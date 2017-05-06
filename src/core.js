@@ -1,6 +1,7 @@
 import {Map, is, fromJS} from 'immutable';
 import {shuffle} from 'lodash/collection';
 import {ERRORS} from './errors';
+import {scoreLine} from './score';
 
 export const EMPTY_LANE = {
   winner: null,
@@ -8,8 +9,8 @@ export const EMPTY_LANE = {
   p2: []
 };
 
-const NUM_SUITES = 6;
-const NUM_TROOP_VALUES = 10;
+export const NUM_SUITES = 6;
+export const NUM_TROOP_VALUES = 10;
 
 function shuffleDeck() {
   let deck = [];
@@ -81,60 +82,12 @@ function switchTurn(turn) {
   return (turn === 'p1') ? 'p2' : 'p1';
 }
 
-function baseScore(lane) {
-  return lane.reduce((sum, card) => {
-    return sum + card.first();
-  }, 0);
-}
-
-function isSkirmish(lane) {
-  let sortedScores = (lane.map((card) => {
-    return card.first();
-  })).sort();
-
-  return sortedScores.get(1) === sortedScores.first() + 1 && sortedScores.get(2) === sortedScores.first() + 2;
-}
-
-function isBattalion(line) {
-  let suite = line.first().get(1);
-  return line.getIn([1, 1]) === suite && line.getIn([2, 1]) === suite;
-}
-
-function isPhalanx(line) {
-  let troopNumber = line.first().get(0);
-  return line.getIn([1, 0]) === troopNumber && line.getIn([2, 0]) === troopNumber;
-}
-
-function isWedge(line) {
-  return isSkirmish(line) && isBattalion(line);
-}
-
-function scoreLine(line) {
-  const SKIRMISH_BONUS = 30;
-  const BATTALION_BONUS = 2 * SKIRMISH_BONUS;
-  const PHALANX_BONUS = 3 * SKIRMISH_BONUS;
-  const WEDGE_BONUS = 4 * SKIRMISH_BONUS;
-
-  let score = baseScore(line);
-
-  if (isWedge(line)) {
-    score += WEDGE_BONUS;
-  } else if (isPhalanx(line)) {
-    score += PHALANX_BONUS;
-  } else if (isBattalion(line)) {
-    score += BATTALION_BONUS;
-  } else if (isSkirmish(line)) {
-    score += SKIRMISH_BONUS;
-  }
-  return score;
-}
-
 function getCompletedLaneWinner(p1Score, p2Score, lastPlayed) {
   if (p1Score > p2Score) {
     return 'p1';
   } else if (p1Score < p2Score) {
     return 'p2'
-  } else {
+  } else { //the person that plays the last card loses in a tie
     return switchTurn(lastPlayed);
   }
 }
@@ -152,8 +105,11 @@ function updateWinners(lanes, lastPlayed) {
       let p1Score = scoreLine(lane.get('p1'));
       let p2Score = scoreLine(lane.get('p2'));
 
-      if (p1LaneSize === 3 && p2LaneSize === 3) {
-        return lane.set('winner', getCompletedLaneWinner(p1Score, p2Score, lastPlayed));
+      if (p1LaneSize === 3 || p2LaneSize === 3) {
+        if (p1LaneSize === 3 && p2LaneSize === 3) {
+          return lane.set('winner', getCompletedLaneWinner(p1Score, p2Score, lastPlayed));
+        }
+        //todo put deduced win logic here
       }
     }
 

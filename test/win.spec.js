@@ -263,7 +263,7 @@ describe('win detection logic', () => {
     expect(nextState).equal(expectedState);
   });
 
-  it('should deduce a win by wedge', () => {
+  it.skip('should deduce a win by wedge', () => {
     let startState = Map({
       error: null,
       winner: null,
